@@ -8,61 +8,115 @@
 #include <linux/uaccess.h>
 #include <linux/syscalls.h>
 
-unsigned long cr0;
+#include <linux/module.h> /* Needed by all modules */
+#include <linux/kernel.h> /* Needed for KERN_INFO */
+#include <linux/init.h>	  /* Needed for the macros */
 
-/*
-static inline void protect_memory(void)
+
+MODULE_LICENSE("Dual BSD/GPL");
+
+typedef void (* TYPE_update_mapping_prot)(phys_addr_t phys, unsigned long virt, phys_addr_t size, pgprot_t prot);
+//typedef asmlinkage long (* TYPE_openat)(const struct pt_regs *pt_regs);
+typedef int (* TYPE_openat)(int dirfd, const char *pathname, int flags, mode_t mode);
+
+
+static unsigned long start_rodata;
+static unsigned long end_rodata;
+static unsigned long init_begin;
+
+#define section_size  (init_begin - start_rodata)
+
+
+TYPE_update_mapping_prot update_mapping_prot;
+static TYPE_openat old_openat;
+
+static void disable_wirte_protection(void)
 {
-    //write_cr0(cr0);
+    update_mapping_prot(__pa_symbol(start_rodata), (unsigned long)start_rodata, section_size, PAGE_KERNEL);
+    return ;
+}
+ 
+static void enable_wirte_protection(void)
+{
+    update_mapping_prot(__pa_symbol(start_rodata), (unsigned long)start_rodata, section_size, PAGE_KERNEL_RO);
+    return ;
 }
 
-static inline void unprotect_memory(void)
+/*
+static atomic_t ref_count = ATOMIC_INIT(0);
+asmlinkage long my_stub_openat(const struct pt_regs *pt_regs)
 {
-    //write_cr0(cr0 & ~0x00010000);
+        atomic_inc(&ref_count);
+        long value = -1;
+        char kfilename[80] = {0};
+ 
+        int dfd = (int)pt_regs->regs[0];
+        char __user *filename = (char*)pt_regs->regs[1];
+        int flags = (int)pt_regs->regs[2];
+        int mode = (int)pt_regs->regs[3];
+ 
+        value = old_openat_func(pt_regs);
+ 
+        copy_from_user(kfilename, filename, 80);
+        printk("%s. process:[%d:%s] open file:%s.\n\t-----> open flags:0x%0x, open %s, fd:%d.\n", __FUNCTION__,
+           current->tgid, current->group_leader->comm, kfilename, flags, value>=0?"sucess":"fail", value);
+ 
+openat_return:
+        atomic_dec(&ref_count);
+        return value;
 }
 */
 
-
-/*
-* This is not a whole code, but only a snippet. 
-* Some functions *is* missing.
-*/
-
-asmlinkage long (*orig_shutdown)(int, int);
-unsigned long *sys_call_table;
-void* hook_addr = 0x00;
-
-hooking_syscall(void *hook_addr, uint16_t syscall_offset, unsigned long *sys_call_tabe)
+bool inline isUserPid(void)
 {
-	//unprotect_memory();
-	sys_call_table[syscall_offset] = (unsigned long)hook_addr;
-	//protect_memory();
+   const struct cred * m_cred = current_cred();
+   if(m_cred->uid.val > 10000)
+   {
+      return true;
+   }
+   return false;
 }
 
-unhooking_syscall(void *orig_addr, uint16_t syscall_offset)
+int new_openat(int dirfd, const char *pathname, int flags, mode_t mode)
 {
-	//unprotect_memory();
-	sys_call_table[syscall_offset] = (unsigned long)hook_addr;
-	//protect_memory();
+	if(isUserPid())
+    {
+		char bufname[256] = {0};
+		int pid = get_current()->pid;
+		strncpy_from_user(bufname, pathname, 255);
+
+		printk("myLog::openat64 pathname:[%s] current->pid:[%d]\n", bufname, pid);
+    }
+	return old_openat(dirfd, pathname, flags, mode);
 }
 
-asmlinkage int hooked_shutdown(int magic1, int magic2)
+static int hello_init(void)
 {
-	printk("Hello from hook!");
-	return orig_shutdown(magic1, magic2);
+	printk(KERN_ALERT "defined Macro USE_IMMEDIATE\n");
+	printk(KERN_ALERT "hello world!\n");
+	start_rodata = (unsigned long)kallsyms_lookup_name("__start_rodata");
+	init_begin = (unsigned long)kallsyms_lookup_name("__init_begin");
+	end_rodata = (unsigned long)kallsyms_lookup_name("__end_rodata");
+	
+	update_mapping_prot = (TYPE_update_mapping_prot)kallsyms_lookup_name("update_mapping_prot");
+
+	void ** sys_call_table_ptr = (void **)kallsyms_lookup_name("sys_call_table");
+	printk("sys_call_table=%lx. update_mapping_prot:%lx, start_rodata:%lx, end_rodata:%lx init_begin:%lx.\n", sys_call_table_ptr, update_mapping_prot, start_rodata, end_rodata, init_begin);
+
+
+	preempt_disable();
+	disable_wirte_protection();
+	old_openat = (TYPE_openat)sys_call_table_ptr[__NR_openat];
+	sys_call_table_ptr[__NR_openat] = (TYPE_openat)new_openat;
+	enable_wirte_protection();
+	preempt_enable();
+	return 0;
 }
 
-static int __init module_init(void)
+static void hello_exit(void)
 {
-	unsigned long *sys_call_table = kallsyms_lookup_name("sys_call_table"));
-	//orig_shutdown = (void*)sys_call_table[__NR_shutdown];
-	//hooking_syscall(hooked_shutdown, __NR_shutdown, sys_call_tabe);
+	printk(KERN_ALERT "I am back.kernel in planet Linux!\n");
 }
 
-static void __exit module_cleanup(void)
-{
-	//unhooking_syscall(orig_shutdown, __NE_shutdown, sys_call_table);
-}
-
-module_exit(module_cleanup);
-module_init(module_init);
+module_exit(hello_exit);
+module_init(hello_init);
