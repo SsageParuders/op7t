@@ -1,7 +1,3 @@
-#include <linux/kernel.h>
-#include <linux/init.h>
-#include <linux/module.h>
-#include <linux/moduleparam.h>
 #include <asm/unistd.h>
 #include <linux/slab.h>
 #include <linux/sched.h>
@@ -23,7 +19,7 @@ typedef int (* TYPE_openat)(int dirfd, const char *pathname, int flags, mode_t m
 static unsigned long start_rodata;
 static unsigned long end_rodata;
 static unsigned long init_begin;
-
+static void ** sys_call_table_ptr;
 #define section_size  (init_begin - start_rodata)
 
 
@@ -90,7 +86,7 @@ int new_openat(int dirfd, const char *pathname, int flags, mode_t mode)
 	return old_openat(dirfd, pathname, flags, mode);
 }
 
-static int hello_init(void)
+static int syscall_hook_init(void)
 {
 	printk(KERN_ALERT "defined Macro USE_IMMEDIATE\n");
 	printk(KERN_ALERT "hello world!\n");
@@ -100,7 +96,7 @@ static int hello_init(void)
 	
 	update_mapping_prot = (TYPE_update_mapping_prot)kallsyms_lookup_name("update_mapping_prot");
 
-	void ** sys_call_table_ptr = (void **)kallsyms_lookup_name("sys_call_table");
+	sys_call_table_ptr = (void **)kallsyms_lookup_name("sys_call_table");
 	printk("sys_call_table=%lx. update_mapping_prot:%lx, start_rodata:%lx, end_rodata:%lx init_begin:%lx.\n", sys_call_table_ptr, update_mapping_prot, start_rodata, end_rodata, init_begin);
 
 
@@ -113,10 +109,27 @@ static int hello_init(void)
 	return 0;
 }
 
-static void hello_exit(void)
+static void cleanup(void)
 {
+	preempt_disable();
+	disable_wirte_protection();
+
+	if(sys_call_table_ptr[__NR_openat] == new_openat)
+	{
+		sys_call_table_ptr[__NR_openat] = old_openat;
+	}
+
+	enable_wirte_protection();
+	preempt_enable();
+
+	return ;
+}
+
+static void syscall_hook_exit(void)
+{
+	cleanup();
 	printk(KERN_ALERT "I am back.kernel in planet Linux!\n");
 }
 
-module_exit(hello_exit);
-module_init(hello_init);
+module_exit(syscall_hook_exit);
+module_init(syscall_hook_init);
