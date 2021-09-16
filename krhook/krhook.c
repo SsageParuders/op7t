@@ -75,7 +75,7 @@ static struct file_operations g_fops = {
 /*------------------------------------------------------------------------------
 	Macro Calls
 ------------------------------------------------------------------------------*/
-MODULE_AUTHOR("T. Ngtk");
+MODULE_AUTHOR("yhnu");
 MODULE_LICENSE("Dual MIT/GPL");
 
 module_init(helloInit);
