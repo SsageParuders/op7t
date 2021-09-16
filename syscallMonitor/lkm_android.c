@@ -133,3 +133,6 @@ static void syscall_hook_exit(void)
 
 module_exit(syscall_hook_exit);
 module_init(syscall_hook_init);
+
+//https://tldp.org/LDP/lkmpg/2.6/html/x351.html
+//https://bbs.pediy.com/thread-267004.htm
