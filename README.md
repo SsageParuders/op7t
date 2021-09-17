@@ -167,3 +167,15 @@ a. linux设备驱动开发学习经典教程
 ```shell
 adb logcat -b kernel,default 
 ```
+
+2021年9月17日 09:01:09
+
+## krhook模块开发
+
+https://github.com/yhnu/op7t/tree/dev/krhook
+
+参考链接:
+
+https://bbs.pediy.com/thread-267004.htm
+
+现在Android 手机大都使用了 MSM 平台 和 kernel， 高通下面的一个patch 引入了 kernel 代码段内存RO 属性. 因此需要做一些修改
