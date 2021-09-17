@@ -52,6 +52,10 @@ jobs:
           just make
           just j16
           just img
+      - name: Module Build        
+        run: |
+          cd $GITHUB_WORKSPACE/krhook          
+          make                    
       - name: List Img        
         run: |
           cd $GITHUB_WORKSPACE
@@ -62,4 +66,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           files: blu7t/img/boot.img
+          files: krhook/krhook.ko
           prerelease: ${{ contains(github.ref, '-') }}
