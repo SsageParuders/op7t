@@ -8,7 +8,7 @@
 insmod krhook.so
 
 # 输入需要过滤的pid, -1 代表不过滤
-echo 8600 > /dev/mypid
+echo 860 > /dev/mypid
 
 # 验证是否成功
 cat /dev/mypid
