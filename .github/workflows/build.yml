@@ -65,6 +65,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: blu7t/img/boot.img
-          files: krhook/krhook.ko
+          files: |
+            blu7t/img/boot.img
+            krhook/krhook.ko
           prerelease: ${{ contains(github.ref, '-') }}
