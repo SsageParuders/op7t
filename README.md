@@ -40,11 +40,13 @@ sudo apt-get install libncurses5
 
 3. 编译依赖
 
+百度网盘整个工程包括编译链
+
 链接: https://pan.baidu.com/s/1RQaPSjLPNX99XBVCCAcoZA 提取码: bbki 复制这段内容后打开百度网盘手机App，操作更方便哦
 
 ```shell
 cd /share
-git clone https://gitee.com/yhnu/op7t.git //这里不行,只能网盘存储了
+git clone https://gitee.com/yhnu/op7t.git
 cd /share/op7t/buildtool
 just c
 ```
