@@ -410,14 +410,21 @@ int new_openat(int dirfd, const char *pathname, int flags, mode_t mode)
 	*/
 	const int minor = 0;
 	const int pid = get_current()->pid;
+	const int tgid = get_current()->tgid;
+	const struct cred * m_cred = current_cred();
 	long mypid = 0;
 
-	if(!kstrtol(g_buf[minor], 0, &mypid) && (pid == mypid || mypid == -1))
+	//is user process && can get pid && pid filter
+	if(m_cred->uid.val > 10000 && !kstrtol(g_buf[minor], 0, &mypid) && (pid == mypid || mypid == -1))
 	{
 		char bufname[256] = {0};
-		int pid = get_current()->pid;
+		int ppid =0;
+		if( get_current()->parent != NULL)
+		{
+			ppid = get_current()->parent->pid;
+		}
 		strncpy_from_user(bufname, pathname, 255);
-		printk("myLog::openat64 pathname:[%s] current->pid:[%d]\n", bufname, pid);
+		printk("openat [%s] current->pid:[%d] ppid:[%d] uid:[%d] tgid:[%d]\n", bufname, pid, ppid, m_cred->uid.val, tgid);
 	}
 	return old_openat(dirfd, pathname, flags, mode);
 }
