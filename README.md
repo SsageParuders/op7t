@@ -179,3 +179,21 @@ https://github.com/yhnu/op7t/tree/dev/krhook
 https://bbs.pediy.com/thread-267004.htm
 
 现在Android 手机大都使用了 MSM 平台 和 kernel， 高通下面的一个patch 引入了 kernel 代码段内存RO 属性. 因此需要做一些修改
+
+2021年9月17日 14:28:50
+
+友人提醒可以直接通过下面的编译器进行编译,不用改代码Makefile
+
+https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-a/downloads
+
+![3cb1209765988e17c4de9b078a07eea](https://cdn.jsdelivr.net/gh/yhnu/PicBed/images3cb1209765988e17c4de9b078a07eea.png)
+
+2021年9月17日 16:28:58
+
+1. /sys/fs/pstore 内核崩溃日志信息存放的位置
+
+2. linux使用lwp机制, 导致task_struct的pid在线程中是线程id,需要使用tgid,或者使用uid进行识别
+
+http://www.opensourceforu.com/2011/08/light-weight-processes-dissecting-linux-threads/
+
+
