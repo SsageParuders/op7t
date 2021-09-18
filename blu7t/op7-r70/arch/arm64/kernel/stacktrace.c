@@ -195,7 +195,7 @@ void save_stack_trace(struct stack_trace *trace)
 EXPORT_SYMBOL_GPL(save_stack_trace);
 #endif
 
-#ifdef CONFIG_USER_STACKTRACE_SUPPORT
+// #ifdef CONFIG_USER_STACKTRACE_SUPPORT
 #include <linux/uaccess.h>
 struct stack_frame_user {
 	const void __user *next_fp;
@@ -243,4 +243,4 @@ void save_stack_trace_user(struct stack_trace *trace)
 	}
 }
 EXPORT_SYMBOL_GPL(save_stack_trace_user);
-#endif
+// #endif

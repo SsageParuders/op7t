@@ -26,11 +26,11 @@ extern void print_stack_trace(struct stack_trace *trace, int spaces);
 extern int snprint_stack_trace(char *buf, size_t size,
 			struct stack_trace *trace, int spaces);
 
-#ifdef CONFIG_USER_STACKTRACE_SUPPORT
+// #ifdef CONFIG_USER_STACKTRACE_SUPPORT
 extern void save_stack_trace_user(struct stack_trace *trace);
-#else
-# define save_stack_trace_user(trace)              do { } while (0)
-#endif
+// #else
+// # define save_stack_trace_user(trace)              do { } while (0)
+// #endif
 
 #else /* !CONFIG_STACKTRACE */
 # define save_stack_trace(trace)			do { } while (0)
