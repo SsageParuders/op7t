@@ -17,7 +17,7 @@ void release_proc_pid_struct(struct pid *proc_pid_struct)
 
 int get_proc_cmdline_addr(struct pid *proc_pid_struct, ssize_t relative_offset, size_t *arg_start, size_t *arg_end)
 {
-	struct task_struct *task = get_pid_task(proc_pid_struct, PIDTYPE_PID);
+	struct task_struct *task = get_pid_task(proc_pid_struct, PIDTYPE_PID); //from pid.h
 	if (!task)
 	{
 		return -1;
