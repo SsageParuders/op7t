@@ -912,8 +912,8 @@ struct task_struct {
 
 	struct restart_block		restart_block;
 
-	pid_t				pid;
-	pid_t				tgid;
+	pid_t				pid; /* pid 即是该进程的 id。使用 fork 或 clone 系统调用时产生的进程均会由内核分配一个新的唯一的PID值。 */
+	pid_t				tgid;/* tgid 是线程组 id。在一个进程中，如果以 CLONE_THREAD 标志来调用 clone 建立的进程就是该进程的一个线程，它们处于一个线程组。处于相同的线程组中的所有进程都有相同的 TGID；线程组组长的 TGID 与其 PID 相同；一个进程没有使用线程，则其 TGID 与 PID 也相同。 */
 
 #ifdef CONFIG_CC_STACKPROTECTOR
 	/* Canary value for the -fstack-protector GCC feature: */
@@ -948,7 +948,7 @@ struct task_struct {
 	struct list_head		ptrace_entry;
 
 	/* PID/PID hash table linkage. */
-	struct pid_link			pids[PIDTYPE_MAX];
+	struct pid_link			pids[PIDTYPE_MAX]; /* pids[PIDTYPE_MAX] 指向了和该 task_struct 相关的 pid 结构体 */
 	struct list_head		thread_group;
 	struct list_head		thread_node;
 
@@ -1036,7 +1036,7 @@ struct task_struct {
 	struct files_struct		*files;
 
 	/* Namespaces: */
-	struct nsproxy			*nsproxy;
+	struct nsproxy			*nsproxy; /* nsproxy指针指向namespace相关的域 */
 
 	/* Signal handlers: */
 	struct signal_struct		*signal;

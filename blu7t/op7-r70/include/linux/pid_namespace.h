@@ -29,15 +29,15 @@ enum { /* definitions for pid_namespace's hide_pid field */
 };
 
 struct pid_namespace {
-	struct kref kref;
-	struct pidmap pidmap[PIDMAP_ENTRIES];
+	struct kref kref; /* kref 表示指向 pid_namespace 的个数 */
+	struct pidmap pidmap[PIDMAP_ENTRIES]; /* pidmap 结构体表示分配pid的位图，pidmap[PIDMAP_ENTRIES] 域存储了该 pid_namespace 下 pid 已分配情况 */
 	struct rcu_head rcu;
-	int last_pid;
-	unsigned int nr_hashed;
-	struct task_struct *child_reaper;
-	struct kmem_cache *pid_cachep;
-	unsigned int level;
-	struct pid_namespace *parent;
+	int last_pid; /* 最后一个已分配的 pid */
+	unsigned int nr_hashed; /* nr_hashed 统计该命名空间已分配PID个数 */
+	struct task_struct *child_reaper; /* child_reaper指向的是一个进程。 该进程的作用是当子进程结束时为其收尸（回收空间）。global namespace 中child_reaper 指向 init_task。*/
+	struct kmem_cache *pid_cachep; /* 指向分配 pid 的 slab 的地址 */
+	unsigned int level; /* 该命名空间所处层级 */
+	struct pid_namespace *parent; /* 指向该命名空间的父命名空间 */
 #ifdef CONFIG_PROC_FS
 	struct vfsmount *proc_mnt;
 	struct dentry *proc_self;

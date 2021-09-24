@@ -50,21 +50,55 @@ enum pid_type
  * find_pid_ns() using the int nr and struct pid_namespace *ns.
  */
 
+/*
+ * ns is name space
+*/
 struct upid {
+	/*
+	   nr是pid的值， 即 task_struct 中 pid_t pid 域的值。
+	*/
 	/* Try to keep pid_chain in the same cacheline as nr for find_vpid */
-	int nr;
+	int nr; //https://blog.csdn.net/qq_42585582/article/details/108687530 is pid
+	/*
+	   ns指向该 pid 所处的 namespace。
+	*/
 	struct pid_namespace *ns;
+	/*
+	   pid_chain 是 pid_hash 哈希表节点。
+	   linux内核将所有进程的upid都存放在一个哈希表（pid_hash）中，以方便查找和统一管理。
+	   通过 pid_chain 能够找到该 upid 所在 pid_hash 中的位置。
+	*/
 	struct hlist_node pid_chain;
 };
 
 struct pid
 {
+	/*
+	   数据结构被引用次数
+	*/
 	atomic_t count;
+	/*
+	   level 是该 pid 在 pid_namespace 中所处层级。当 level=0 时表示是 global namespace，即最高层。
+	*/
 	unsigned int level;
 	/* lists of tasks that use this pid */
-	struct hlist_head tasks[PIDTYPE_MAX];
+	/* tasks[i] 指向 PID 对应的 task_struct。
+	   PIDTYPE_MAX 是 pid 的类型数。
+	   一个或多个进程可以组成一个进程组，进程组ID（PGID）为进程组领导进程 (process group leader)的PID；
+	   一个或多个进程组可以组成一个会话，会话ID（SID）为会话领导进程（session leader）的PID
+	*/
+	struct hlist_head tasks[PIDTYPE_MAX]; 
+	/*
+	   rcu 用于保证数据同步，具体机制另行讨论
+	*/
 	struct rcu_head rcu;
+	/*
+	   numbers[1] 域是一个可扩展 upid 结构体。 一个 PID 可以属于不同的 namespace
+	*/
 	struct upid numbers[1];
+	/*
+	   numbers[0] 表示 global namespace，numbers[i] 表示第 i 层 namespace，i 越大所在层级越低
+	*/
 };
 
 extern struct pid init_struct_pid;
