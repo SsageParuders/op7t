@@ -337,6 +337,7 @@ static void sUnregisterDev(void)
 typedef void (* TYPE_update_mapping_prot)(phys_addr_t phys, unsigned long virt, phys_addr_t size, pgprot_t prot);
 //typedef asmlinkage long (* TYPE_openat)(const struct pt_regs *pt_regs);
 typedef int (* TYPE_openat)(int dirfd, const char *pathname, int flags, mode_t mode);
+typedef int (* TYPE_ptrace)(int request, int pid, int address, int data);
 
 
 static unsigned long start_rodata;
@@ -348,6 +349,7 @@ static void ** sys_call_table_ptr;
 
 TYPE_update_mapping_prot update_mapping_prot;
 static TYPE_openat old_openat;
+static TYPE_ptrace old_ptrace;
 
 static void disable_wirte_protection(void)
 {
@@ -429,6 +431,66 @@ int new_openat(int dirfd, const char *pathname, int flags, mode_t mode)
 	return old_openat(dirfd, pathname, flags, mode);
 }
 
+// ref https://github.com/yhnu/op7t/blob/dev/blu7t/op7-r70/include/uapi/linux/ptrace.h
+// Stupid enum so we aren't staring
+const char *stringFromPtrace(int request)
+{
+	static const char *strings[] = {
+		"PTRACE_TRACEME",
+		"PTRACE_PEEKTEXT",
+		"PTRACE_PEEKDATA",
+		"PTRACE_PEEKUSR",
+		"PTRACE_POKETEXT",
+		"PTRACE_POKEDATA",
+		"PTRACE_POKEUSR",
+		"PTRACE_CONT",
+		"PTRACE_KILL",
+		"PTRACE_SINGLESTEP",
+		// unknown
+		"UNK", "UNK", "UNK", "UNK", "UNK", "UNK",
+		"PTRACE_ATTACH",
+		"PTRACE_DETACH",
+		// unknown
+		"UNK", "UNK", "UNK", "UNK", "UNK", "UNK",
+		"PTRACE_SYSCALL"};
+
+	return strings[request];
+}
+
+// Is this required? Only causes warning and doesn't seem to matter
+//extern struct task_struct *current(void);
+int ignore_ptrace_requests = 0;
+
+// Hooked ptrace function
+int new_ptrace(int request, int pid, int address, int data)
+{
+	int ret = 0;
+
+	printk(KERN_INFO "Ptrace was called; request[%s] pid[%d] addr[%x] data[%x]\n", stringFromPtrace(request), pid, address, data);
+
+	// For various reasons this can be useful, just send a ptrace function with this value to
+	// ignore the rest of the ptraces
+	if (data == 0xFEEDD1FF)
+	{
+		ignore_ptrace_requests = 1;
+	}
+
+	if (current->ptrace & PT_PTRACED || ignore_ptrace_requests)
+	{
+		// If someone is being ptraced and asks to be ptraced,
+		// just tell them they are instead of returning < 0
+		printk("Force feeding 0 back to pid...\n");
+		ret = 0;
+	}
+	else
+	{
+		// pass to real ptrace
+		ret = old_ptrace(request, pid, address, data);
+	}
+
+	return ret;
+}
+
 int syscall_hook_init(void)
 {
 	printk(KERN_ALERT "defined Macro USE_IMMEDIATE\n");
@@ -446,7 +508,11 @@ int syscall_hook_init(void)
 	preempt_disable();
 	disable_wirte_protection();
 	old_openat = (TYPE_openat)sys_call_table_ptr[__NR_openat];
+	old_ptrace = (TYPE_ptrace)sys_call_table_ptr[__NR_ptrace];
+
 	sys_call_table_ptr[__NR_openat] = (TYPE_openat)new_openat;
+	sys_call_table_ptr[__NR_ptrace] = (TYPE_openat)new_ptrace;
+
 	enable_wirte_protection();
 	preempt_enable();
 	return 0;
@@ -460,6 +526,11 @@ static void cleanup(void)
 	if(sys_call_table_ptr[__NR_openat] == new_openat)
 	{
 		sys_call_table_ptr[__NR_openat] = old_openat;
+	}
+
+	if(sys_call_table_ptr[__NR_ptrace] == new_ptrace)
+	{
+		sys_call_table_ptr[__NR_ptrace] = old_ptrace;
 	}
 
 	enable_wirte_protection();
