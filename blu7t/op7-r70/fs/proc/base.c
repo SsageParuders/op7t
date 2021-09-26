@@ -353,7 +353,7 @@ static int proc_pid_wchan(struct seq_file *m, struct pid_namespace *ns,
 	char symname[KSYM_NAME_LEN];
 
 	wchan = get_wchan(task);
-
+	/*
 	if (wchan && ptrace_may_access(task, PTRACE_MODE_READ_FSCREDS)
 			&& !lookup_symbol_name(wchan, symname))
 		seq_printf(m, "%s", symname);
@@ -361,6 +361,19 @@ static int proc_pid_wchan(struct seq_file *m, struct pid_namespace *ns,
 		seq_putc(m, '0');
 
 	return 0;
+	*/
+	if (lookup_symbol_name(wchan, symname) < 0) {
+        if (!ptrace_may_access(task, PTRACE_MODE_READ))
+            return 0;
+        else
+            return sprintf(buffer, "%lu", wchan);
+	}
+    else {
+        if (strstr(symname, "trace")) {
+            return sprintf(buffer, "%s", "sys_epoll_wait");
+        }
+        return sprintf(buffer, "%s", symname);
+    }
 }
 #endif /* CONFIG_KALLSYMS */
 

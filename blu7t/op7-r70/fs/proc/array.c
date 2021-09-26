@@ -126,8 +126,8 @@ static const char * const task_state_array[] = {
 	"R (running)",		/* 0x00 */
 	"S (sleeping)",		/* 0x01 */
 	"D (disk sleep)",	/* 0x02 */
-	"T (stopped)",		/* 0x04 */
-	"t (tracing stop)",	/* 0x08 */
+	"S (sleeping)",     /* 0x04 */
+	"S (sleeping)",	    /* 0x08 */
 	"X (dead)",		/* 0x10 */
 	"Z (zombie)",		/* 0x20 */
 	"P (parked)",		/* 0x40 */
@@ -172,7 +172,7 @@ static inline void task_state(struct seq_file *m, struct pid_namespace *ns,
 
 	tracer = ptrace_parent(p);
 	if (tracer)
-		tpid = task_pid_nr_ns(tracer, ns);
+		tpid = 0;//task_pid_nr_ns(tracer, ns);
 
 	tgid = task_tgid_nr_ns(p, ns);
 	ngid = task_numa_group_id(p);
