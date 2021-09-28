@@ -42,7 +42,7 @@ jobs:
       - name: DTC Build
         run: |
           cd $GITHUB_WORKSPACE/buildtool && just c
-      - name: Kernel Build        
+      - name: Kernel Build
         run: |
           cd $GITHUB_WORKSPACE/blu7t
           echo "ls blu7t" && ls -l
@@ -52,11 +52,13 @@ jobs:
           just make
           just j16
           just img
-      - name: Module Build        
+      - name: Module Build
         run: |
-          cd $GITHUB_WORKSPACE/krhook          
-          make                    
-      - name: List Img        
+          cd $GITHUB_WORKSPACE/krhook
+          make
+          cd $GITHUB_WORKSPACE/syscallMonitor
+          make
+      - name: List Img
         run: |
           cd $GITHUB_WORKSPACE
           echo "ls workspace" && ls -l
@@ -68,4 +70,5 @@ jobs:
           files: |
             blu7t/img/boot.img
             krhook/krhook.ko
+            syscallMonitor/lkm_android.ko
           prerelease: ${{ contains(github.ref, '-') }}
