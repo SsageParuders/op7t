@@ -10,7 +10,6 @@
  *	- https://github.com/ngtkt0909/linux-kernel-module-template/blob/master/LICENSE-MIT
  *	- https://github.com/ngtkt0909/linux-kernel-module-template/blob/master/LICENSE-GPL
  */
-
 #include <linux/module.h>	/* MODULE_*, module_* */
 #include <linux/fs.h>		/* file_operations, alloc_chrdev_region, unregister_chrdev_region */
 #include <linux/cdev.h>		/* cdev, dev_init(), cdev_add(), cdev_del() */
@@ -19,7 +18,12 @@
 #include <asm/uaccess.h>	/* copy_from_user(), copy_to_user() */
 #include <linux/uaccess.h>  /* copy_from_user(), copy_to_user() */
 #include <linux/syscalls.h>
-
+#include <linux/err.h>
+#include <linux/mm.h>
+#include <linux/sched.h>
+#include <linux/sched/mm.h>
+#include <linux/hashtable.h>
+#include <linux/types.h>    // u32 etc.
 /*------------------------------------------------------------------------------
     Define Declaration
 ------------------------------------------------------------------------------*/
@@ -437,118 +441,143 @@ int snprint_stack_trace(char *buf, size_t size,
     return total;
 }
 
+// https://code.woboq.org/userspace/glibc/intl/hash-string.c.html
+#define HASHWORDBITS 32
+
+/* Defines the so called `hashpjw' function by P.J. Weinberger
+   [see Aho/Sethi/Ullman, COMPILERS: Principles, Techniques and Tools,
+   1986, 1987 Bell Telephone Laboratories, Inc.]  */
+unsigned long int
+hash_string (const char *str_param)
+{
+  unsigned long int hval, g;
+  const char *str = str_param;
+  /* Compute the hash value for the given string.  */
+  hval = 0;
+  while (*str != '\0')
+    {
+      hval <<= 4;
+      hval += (unsigned char) *str++;
+      g = hval & ((unsigned long int) 0xf << (HASHWORDBITS - 4));
+      if (g != 0)
+        {
+          hval ^= g >> (HASHWORDBITS - 8);
+          hval ^= g;
+        }
+    }
+  return hval;
+}
+
+static u32 myhash(const char *s) {
+    u32 key = 0;
+    char c;
+
+    while ((c = *s++))
+        key += c;
+
+    return key;
+}
+
 /*
  * Indicate if the VMA is a stack for the given task; for
  * /proc/PID/maps that is the stack of the main task.
  */
 static int is_stack(struct vm_area_struct *vma)
 {
-	/*
-	 * We make no effort to guess what a given thread considers to be
-	 * its "stack".  It's not even well-defined for programs written
-	 * languages like Go.
-	 */
-	return vma->vm_start <= vma->vm_mm->start_stack &&
-		   vma->vm_end >= vma->vm_mm->start_stack;
+    /*
+     * We make no effort to guess what a given thread considers to be
+     * its "stack".  It's not even well-defined for programs written
+     * languages like Go.
+     */
+    return vma->vm_start <= vma->vm_mm->start_stack &&
+           vma->vm_end >= vma->vm_mm->start_stack;
 }
 
-static int get_proc_maps_list_to_kernel(struct pid *proc_pid_struct, size_t max_path_length, char *lpBuf, size_t buf_size, int *have_pass)
+struct so_map
 {
-	if (max_path_length > PATH_MAX || max_path_length <= 0)
-	{
-		return -1;
-	}
+    unsigned long base;
+    unsigned long int id;
+    char name[PATH_MAX];
+    struct hlist_node node;
+};
 
-	struct task_struct *task = get_pid_task(proc_pid_struct, PIDTYPE_PID);
-	if (!task)
-	{
-		return -2;
-	}
-	struct mm_struct *mm;
-	struct vm_area_struct *vma;
+static int print_map_list()
+{
+    struct mm_struct *mm;
+    struct vm_area_struct *vma;
+    char path_buf[PATH_MAX];
+    DEFINE_HASHTABLE(htable, 3);
+    hash_init(htable);
+    mm = get_task_mm(current);
+    if (!mm)
+    {
+        return -2;
+    }
 
-	mm = get_task_mm(task);
-	put_task_struct(task);
-	if (!mm)
-	{
-		return -3;
-	}
+    down_read(&mm->mmap_sem);
+    for (vma = mm->mmap; vma; vma = vma->vm_next) {
+        unsigned long start, end;
+		unsigned char flags[10];
+        unsigned long int id;
+        bool bFound;
 
-	char new_path[PATH_MAX];
-
-	memset(lpBuf, 0, buf_size);
-
-	int success = 0;
-
-	size_t copy_pos = (size_t)lpBuf;
-	size_t end_pos = (size_t)((size_t)lpBuf + buf_size);
-
-	down_read(&mm->mmap_sem);
-	for (vma = mm->mmap; vma; vma = vma->vm_next)
-	{
-		if (copy_pos >= end_pos)
-		{
-			if (have_pass)
-			{
-				*have_pass = 1;
-			}
-			break;
-		}
-		unsigned long start, end;
 		start = vma->vm_start;
 		end = vma->vm_end;
-
-		memcpy(copy_pos, &start, 8);
-		copy_pos += 8;
-		memcpy(copy_pos, &end, 8);
-		copy_pos += 8;
-
-		unsigned char flags[4];
-		flags[0] = vma->vm_flags & VM_READ ? '\x01' : '\x00';
+        flags[0] = vma->vm_flags & VM_READ ? '\x01' : '\x00';
 		flags[1] = vma->vm_flags & VM_WRITE ? '\x01' : '\x00';
 		flags[2] = vma->vm_flags & VM_EXEC ? '\x01' : '\x00';
 		flags[3] = vma->vm_flags & VM_MAYSHARE ? '\x01' : '\x00';
-		memcpy(copy_pos, &flags, 4);
-		copy_pos += 4;
 
-		memset(new_path, 0, sizeof(new_path));
-		if (vma->vm_file)
-		{
-			d_path(&vma->vm_file->f_path, new_path, sizeof(new_path));
+		if (vma->vm_file) {
+			char *path;
+            int len;
+			memset(path_buf, 0, sizeof(path_buf));
+			path = d_path(&vma->vm_file->f_path, path_buf, sizeof(path_buf));
+            len = strlen(path);
+			if (path > 0 && !strncmp(path+len-3, ".so", strlen(".so"))) { // endswith .so
+                struct so_map *cur;
+                int cnt = 0;
+                id = myhash(path);
+                bFound = false;
+                printk("%pS-%pS %s %ld\n", start, end, path, id);
+                hash_for_each_possible(htable, cur, node, id) {
+                    if(id == cur->id) {
+                        pr_info("get: element: base = %pS, name = %s, id=%ld, targetid=%ld\n", cur->base, cur->name, cur->id, id);
+                        if(cur->base > start) {
+                            cur->base = start;
+                        }
+                        bFound = true;
+                        break;
+                    }
+                }
+                if(!bFound) {
+                    struct so_map *obj;
+                    obj = (struct so_map*)kmalloc(sizeof(struct so_map), GFP_KERNEL);
+                    obj->id = id;
+                    obj->base = start;
+                    strcpy(obj->name, path);
+                    //pr_info("add: element: base = %d, name = %s, id=%ld\n", obj.base, obj.name, obj.id);
+                    hash_add(htable, &obj->node, obj->id);
+                }
+			} else {
+                printk("%pS-%pS %s\n", start, end, "");
+            }
 		}
-		else if (vma->vm_mm && vma->vm_start == (long)vma->vm_mm->context.vdso)
-		{
-			strcat(new_path, "[vdso]");
-		}
-		else
-		{
-			if (vma->vm_start <= mm->brk &&
-				vma->vm_end >= mm->start_brk)
-			{
-				strcat(new_path, "[heap]");
-			}
-			else
-			{
-				if (is_stack(vma))
-				{
-					/*
-					 * Thread stack in /proc/PID/task/TID/maps or
-					 * the main process stack.
-					 */
+    } // end for
+    
+    do {
+        struct so_map *cur;
+        unsigned bkt;
+        hash_for_each(htable, bkt, cur, node) {
+            pr_info("%s, base = %pS\n", cur->name, cur->base);
+            kfree(cur);
+        }
+    } while(0);
 
-					/* Thread stack in /proc/PID/maps */
-					strcat(new_path, "[stack]");
-				}
-			}
-		}
-		memcpy(copy_pos, &new_path, max_path_length < sizeof(new_path) ? max_path_length - 1 : sizeof(new_path));
-		copy_pos += max_path_length;
-		success++;
-	}
-	up_read(&mm->mmap_sem);
+    up_read(&mm->mmap_sem);
 	mmput(mm);
-
-	return success;
+    
+    return 0;
 }
 
 int new_openat(int dirfd, const char *pathname, int flags, mode_t mode)
@@ -612,7 +641,8 @@ int new_openat(int dirfd, const char *pathname, int flags, mode_t mode)
             memset(stack_buf, 0, STACK_BUF_SIZE);
             snprint_stack_trace(stack_buf, STACK_BUF_SIZE, &trace, 1);
             
-            printk("openat [%s] current->pid:[%d] ppid:[%d] uid:[%d] tgid:[%d] stack:%s\n", bufname, pid, ppid, m_cred->uid.val, tgid, stack_buf);
+            printk("openat [%s] current->pid:[%d] ppid:[%d] uid:[%d] tgid:[%d] stack:%s\n", bufname, pid, ppid, m_cred->uid.val, tgid, "");
+            print_map_list();
             kfree(stack_buf);
         Exit1:
             kfree(entries);
@@ -702,10 +732,10 @@ int syscall_hook_init(void)
     preempt_disable();
     disable_wirte_protection();
     old_openat = (TYPE_openat)sys_call_table_ptr[__NR_openat];
-    old_ptrace = (TYPE_ptrace)sys_call_table_ptr[__NR_ptrace];
+    // old_ptrace = (TYPE_ptrace)sys_call_table_ptr[__NR_ptrace];
 
     sys_call_table_ptr[__NR_openat] = (TYPE_openat)new_openat;
-    sys_call_table_ptr[__NR_ptrace] = (TYPE_ptrace)new_ptrace;
+    // sys_call_table_ptr[__NR_ptrace] = (TYPE_ptrace)new_ptrace;
 
     enable_wirte_protection();
     preempt_enable();
@@ -722,10 +752,10 @@ static void cleanup(void)
         sys_call_table_ptr[__NR_openat] = old_openat;
     }
 
-    if(sys_call_table_ptr[__NR_ptrace] == new_ptrace)
-    {
-        sys_call_table_ptr[__NR_ptrace] = old_ptrace;
-    }
+    // if(sys_call_table_ptr[__NR_ptrace] == new_ptrace)
+    // {
+    //     sys_call_table_ptr[__NR_ptrace] = old_ptrace;
+    // }
 
     enable_wirte_protection();
     preempt_enable();
