@@ -125,10 +125,10 @@ fn parser_krhook_log(krlog: &Path, sym: &str, addr2line: &str) {
     }
 }
 fn main() {
-    let matches = App::new("addr2line for ips Breakpad symbol file")
+    let matches = App::new("krhook offline stack walk")
         .version("1.0")
-        .author("yiluoyang <buutuud@gmail.com>/liudingsan <lds2012@gmail.com>")
-        .after_help("EXAMPLE:\n    ips_breakpad UnityFramework.sym jxpocket.ips")
+        .author("yiluoyang <buutuud@gmail.com>")
+        .after_help("EXAMPLE:\n    kr_offline demo.krhook.txt sym")
         .arg(Arg::with_name("kr").help("kr log file").required(true))
         .arg(Arg::with_name("sym").help("sym dir").required(false))
         .get_matches();
