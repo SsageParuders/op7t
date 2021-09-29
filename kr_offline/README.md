@@ -1,4 +1,4 @@
-kr_offline工具使用说明
+# kr_offline工具使用说明
 
 前段时间做了krhook模块(在内核层进行用户层堆栈回溯), 已经通过日志打印出了maps信息和pc调用链, 为了达到类似安卓崩溃分析的效果, 我们还需要一个离线工具,具体原理可以参考
 (https://support.unity.com/hc/en-us/articles/115000292166-Symbolicate-Android-crash)
@@ -88,7 +88,9 @@ OnePlus7T:/data/local/tmp # dmesg
 
 ## 堆栈还原
 
-需要借助离线工具[https://github.com/yhnu/op7t/releases/download/v1.0/kr_offline.exe](https://github.com/yhnu/op7t/releases/download/v1.0/kr_offline.exe)
+需要借助离线工具
+
+[https://github.com/yhnu/op7t/releases/download/v1.0/kr_offline.exe](https://github.com/yhnu/op7t/releases/download/v1.0/kr_offline.exe)
 
 通过日志信息我们可以知道应用程序so对应的目录为 /data/app/com.DefaultCompany.krhook_unity3d-PL6MaRBI5vxhNhVP3URXtA==/lib/arm64/
 
