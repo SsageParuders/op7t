@@ -145,7 +145,9 @@ openat[/storage/emulated/0/Android/data/com.DefaultCompany.krhook_unity3d/files/
 [https://github.com/yhnu/op7t/releases](https://github.com/yhnu/op7t/releases)
 
 
+## 总结
 
+通过上面的操作步骤就可以拿到对应的用户层堆栈, 为我们逆向打开一扇窗户, 后期会开发硬件断点然后离线回溯的功能, 敬请期待.
 
 
 
