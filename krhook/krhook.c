@@ -541,7 +541,7 @@ static int print_map_list()
                 // bFound = false;
                 unsigned long offset;	
                 offset = vma->vm_pgoff << PAGE_SHIFT; // https://bbs.csdn.net/topics/390674592
-                printk("[m]%pS-%pS %s %#010x %s\n", start, end, flags, offset, path);
+                printk("[m]%pS-%pS %#010x %s %s\n", start, end, offset, flags, path);
                 // hash_for_each_possible(htable, cur, node, id) {
                 //     if(id == cur->id) {
                 //         //pr_info("get: element: base = %pS, name = %s, id=%ld, targetid=%ld\n", cur->base, cur->name, cur->id, id);
