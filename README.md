@@ -217,6 +217,10 @@ https://www.cnblogs.com/crybaby/p/13052993.html
 while true; do dmesg -c ; sleep 1 ; done
 # huo zhe
 adb logcat -c && adb logcat -b kernel,default |rg 8641
+
+# /proc/kmsg and /dev/kmsg provide log data in a non-RFC-5424 form.
+# https://blog.csdn.net/weixin_39834281/article/details/116657611
+cat /dev/kmsg
 ```
 
 5. syscall相关

@@ -281,7 +281,41 @@ lldb目前已经成为主流，建议使用对应的参考文档有
 ndk/21.3.6528147/toolchains/llvm/prebuilt/darwin-x86_64/lib64/clang/9.0.8/lib/linux/aarch64/lldb-server
 NDK中有4个lldb-server, 由于我的设备是64位的, 所以选择aarch64目录下的
 
-注意：我就是因为上面的选择不正确一直没成功
+注意：我就是因为上面的选择不正确一直没成功, 为了不用每次都输入相关命令可以使用.lldbinit
+```shell
+# wish lldb supported colors :/
+# settings set prompt [lldb]$
+
+# breakpoint shortcuts
+# break on function/method/selector: b -n name
+# break on C/C++ method: b -M method
+# break on selector: b -S selector:here:
+# break on address: b -a 0xfeedface
+# command alias b breakpoint set
+command alias bd breakpoint disable
+command alias be breakpoint enable
+command alias bdel breakpoint delete
+command alias bcommand breakpoint command add
+command alias commands breakpoint command list
+
+# jump aliases
+# jump 0xfeedface
+#command alias jump register write pc
+command alias jmp register write pc
+#command alias j register write pc
+
+# fix p/s
+# p/s rsi
+# command alias p/s register read
+# command alias p attach
+command alias pi process interrupt
+
+
+command alias return thread return
+
+platform select remote-android
+platform connect connect://:1234
+```
 
 ![20211007004015](https://cdn.jsdelivr.net/gh/yhnu/PicBed/20211007004015.png)
 
