@@ -2,7 +2,12 @@
 
 ## 前言
 
-前段时间做了内核层堆栈回溯的功能，打算进一步使用硬件断点的功能
+前段时间做了内核层堆栈回溯的功能，打算进一步参考[rwProcMem33](https://github.com/abcz316/rwProcMem33)做硬件断点的功能, 设置任意断点然后堆栈回溯。
+在这之前了解了下GDB的相关功能，发现也有硬件断点的功能，但是会被Ptrace住。但是不管怎样先学学原理吧。
+
+关于krhook相关功能说明可以参考:
+
+[https://github.com/yhnu/op7t/tree/dev/kr_offline](https://github.com/yhnu/op7t/tree/dev/kr_offline)
 
 ## 准备工作
 
@@ -250,4 +255,20 @@
     from target:/apex/com.android.runtime/lib64/libart.so
     ```
     ![20211006174153](https://cdn.jsdelivr.net/gh/yhnu/PicBed/20211006174153.png)
+
+## 硬件断点内核工作原理
+
+通过阅读下面的几篇文章并结合源码我们就能够理解背后的工作原理了，然后再去看rwProcMem33的代码也就不会感觉特别困难了
+
+![20211006205229](https://cdn.jsdelivr.net/gh/yhnu/PicBed/20211006205229.png)
+
+https://www.kernel.org/doc/ols/2009/ols2009-pages-149-158.pdf
+
+https://lwn.net/Articles/317153/
+
+https://lwn.net/Articles/353050/
+
+
 ## 总结
+
+通过上面的简单使用，我们已经简单了解如何通过gdb进行硬件断点的使用。 后续会从内核层讲讲ptrace的相关代码，逆向不易，互勉。
