@@ -197,3 +197,71 @@ https://developer.arm.com/tools-and-software/open-source-software/developer-tool
 http://www.opensourceforu.com/2011/08/light-weight-processes-dissecting-linux-threads/
 
 
+3. linux进程管理
+
+https://blog.csdn.net/o_alpha/article/details/95305837
+
+https://blog.csdn.net/qq_34696349/article/details/118281098
+
+https://www.cnblogs.com/crybaby/p/13052993.html
+
+
+4. tail of dmesg
+
+```shell
+while true; do dmesg -c ; sleep 1 ; done
+# huo zhe
+adb logcat -c && adb logcat -b kernel,default |rg 8641
+```
+
+5. syscall相关
+
+https://blog.csdn.net/weixin_42915431/article/details/115289115
+
+6. kernel stack相关
+
+https://wenboshen.org/posts/2015-12-18-kernel-stack.html
+
+![20210917172958](https://cdn.jsdelivr.net/gh/yhnu/PicBed/20210917172958.png)
+
+## 添加UserSpace Stack Walk
+
+```shell
+[  436.292917] [20210918_10:22:39.895518]@4 stack_size:[12]
+[  436.292919] stack:[<0000000000000000>] 0x7b19886388
+[  436.292924] [20210918_10:22:39.895525]@4 stack:[<0000000000000000>] 0x7b19893d20
+[  436.292932] [20210918_10:22:39.895533]@4 stack:[<0000000000000000>] 0x7b1762930c
+[  436.292937] [20210918_10:22:39.895538]@4 stack:[<0000000000000000>] 0x7b176293fc
+[  436.292941] [20210918_10:22:39.895542]@4 stack:[<0000000000000000>] 0x7b175f7ae0
+[  436.292945] [20210918_10:22:39.895546]@4 stack:[<0000000000000000>] 0x7b175f6ca4
+[  436.292949] [20210918_10:22:39.895550]@4 stack:[<0000000000000000>] 0x7b1a69758c
+[  436.292954] [20210918_10:22:39.895555]@4 stack:[<0000000000000000>] 0x7b17743c60
+[  436.292958] [20210918_10:22:39.895559]@4 stack:[<0000000000000000>] 0x7b1989bb74
+[  436.292962] [20210918_10:22:39.895563]@4 stack:[<0000000000000000>] 0x7b19839eb0
+[  436.292967] [20210918_10:22:39.895568]@4 stack:[<0000000000000000>] 0xffffffffffffffff
+```
+
+2021年9月28日 13:24:47
+
+## run-as命令使用说明
+
+在某个APP的权限下运行某些命令, 方便确认对应的权限
+
+https://stackoverflow.com/questions/26954161/what-are-the-rwxp-sections-in-proc-pid-smaps-linux
+
+http://books.gigatux.nl/mirror/kerneldevelopment/0672327201/ch14lev1sec2.html
+
+rwxps对应的
+
+	r = read
+	w = write
+	x = execute
+	s = shared
+	p = private (copy on write)
+
+```shell
+# http://adbcommand.com/articles/%E5%B8%B8%E7%94%A8adb%20shell%E5%91%BD%E4%BB%A4%EF%BC%9Arun-as%E5%92%8Cexec-out
+OnePlus7T:/ $ run-as com.DefaultCompany.krhook_unity3d
+OnePlus7T:/data/data/com.DefaultCompany.krhook_unity3d $ ls
+cache code_cache files shared_prefs
+```
