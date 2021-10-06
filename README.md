@@ -196,6 +196,11 @@ https://developer.arm.com/tools-and-software/open-source-software/developer-tool
 
 http://www.opensourceforu.com/2011/08/light-weight-processes-dissecting-linux-threads/
 
+### 2021年9月30日 11:06:14
+
+special thanks: https://github.com/abcz316/rwProcMem33
+
+
 
 3. linux进程管理
 

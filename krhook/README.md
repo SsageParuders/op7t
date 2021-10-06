@@ -27,3 +27,7 @@ OnePlus7T:/data/local/tmp # dmesg | tail
 [85016.476265] [20210916_17:10:02.296133]@0 healthd: battery l=100 v=4396 t=27.9 h=2 st=5 c=4 fc=2332000 cc=448 chg=u
 [85019.361663] [20210916_17:10:05.181529]@2 [cds_ol_rx_threa][0x17c16b38d20][17:10:05.181512] wlan: [4112:I:DATA] hdd_rx_packet_cbk: ARP packet received
 ```
+
+## 详细使用说明
+
+[https://github.com/yhnu/op7t/tree/dev/kr_offline](https://github.com/yhnu/op7t/tree/dev/kr_offline)
