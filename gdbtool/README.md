@@ -26,7 +26,8 @@
 
 1. 使用ndk编译下面的示例代码
 
-    ```shell
+    ```c++
+    // hello.cpp
     #include <stdio.h>
     #include <unistd.h>
 
@@ -43,4 +44,73 @@
         return 0;
     }
     ```
-2. 
+2. 将64位gdbserver和hello push to /data/local/tmp
+
+    ```shell
+    adb push android-arm64/gdbserver/gdbserver /data/local/tmp
+    adb push hello /data/local/tmp
+    ```
+
+3. android启动对应gdbserver
+
+    ```shell
+    OnePlus7T:/data/local/tmp # ./gdbserver :1234 hello
+    warning: Found custom handler for signal 39 (Unknown signal 39) preinstalled.
+    Some signal dispositions inherited from the environment (SIG_DFL/SIG_IGN)
+    won't be propagated to spawned programs.
+    Process /data/local/tmp/hello created; pid = 8022
+    Listening on port 1234
+    ```
+
+4. pc连接安卓gdbserver
+
+    adb forward tcp:1234 tcp:1234
+    #gdb: aliased to /opt/android-ndk-r21e//prebuilt/darwin-x86_64/bin/gdb
+    ➜  op7t git:(dev) ✗ gdb
+    GNU gdb (GDB) 8.3
+    Copyright (C) 2019 Free Software Foundation, Inc.
+    License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+    This is free software: you are free to change and redistribute it.
+    There is NO WARRANTY, to the extent permitted by law.
+    Type "show copying" and "show warranty" for details.
+    This GDB was configured as "x86_64-apple-darwin14.5.0".
+    Type "show configuration" for configuration details.
+    For bug reporting instructions, please see:
+    <http://www.gnu.org/software/gdb/bugs/>.
+    Find the GDB manual and other documentation resources online at:
+        <http://www.gnu.org/software/gdb/documentation/>.
+
+    For help, type "help".
+    Type "apropos word" to search for commands related to "word".
+    (gdb) target remote :1234
+    Remote debugging using :1234
+    Reading /data/local/tmp/hello from remote target...
+    warning: File transfers from remote targets can be slow. Use "set sysroot" to access files locally instead.
+    Reading /data/local/tmp/hello from remote target...
+    Reading symbols from target:/data/local/tmp/hello...
+    Reading /system/bin/linker64 from remote target...
+    Reading /system/bin/linker64 from remote target...
+    Reading symbols from target:/system/bin/linker64...
+    (No debugging symbols found in target:/system/bin/linker64)
+    0x0000007fbf634a50 in __dl__start () from target:/system/bin/linker64
+    (gdb) b *main #set breakpoint
+    Breakpoint 1 at 0x5555555754: file F:/F2021-07/ak47hook/hello/hello.c, line 7.
+    (gdb) c       #run 
+    Continuing.
+    Reading /system/lib64/libandroid.so from remote target...
+    Reading /apex/com.android.runtime/lib64/bionic/libm.so from remote target...
+    Reading /apex/com.android.runtime/lib64/bionic/libdl.so from remote target...
+    Reading /apex/com.android.runtime/lib64/bionic/libc.so from remote target...
+
+    #trigger the breakpoint
+
+    Breakpoint 1, main (argc=0, argv=0x0) at F:/F2021-07/ak47hook/hello/hello.c:7
+    7	F:/F2021-07/ak47hook/hello/hello.c: No such file or directory.
+    
+    (gdb) hbreak *sleep #trigger the hard breakpoint
+    Hardware assisted breakpoint 3 at 0x7fbc9ea430
+    (gdb) c
+    Continuing.
+
+    Breakpoint 3, 0x0000007fbc9ea430 in sleep () from target:/apex/com.android.runtime/lib64/bionic/libc.so
+    (gdb)
