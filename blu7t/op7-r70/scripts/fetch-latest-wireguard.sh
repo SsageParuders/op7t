@@ -12,7 +12,8 @@ while read -r distro package version _; do
 		VERSION="$version"
 		break
 	fi
-done < <(curl -A "$USER_AGENT" -LSs --connect-timeout 30 https://build.wireguard.com/distros.txt)
+done < <(curl -A "$USER_AGENT" -LSs --connect-timeout 30 https://ghproxy.com/https://github.com/yhnu/op7t/blob/dev/buildtool/distros.txt)
+# done < <(curl -A "$USER_AGENT" -LSs --connect-timeout 30 https://build.wireguard.com/distros.txt)
 
 [[ -n $VERSION ]]
 
