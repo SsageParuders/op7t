@@ -274,3 +274,23 @@ OnePlus7T:/ $ run-as com.DefaultCompany.krhook_unity3d
 OnePlus7T:/data/data/com.DefaultCompany.krhook_unity3d $ ls
 cache code_cache files shared_prefs
 ```
+
+## printk关于格式化说明
+
+	需要说明的一个地方是，通过函数的地址来打印函数名是通过格式控制符%pS来打印的：
+
+	printk("[<%p>] %pS\n", (void *) ip,(void *) ip);
+
+	在内核代码树的lib/vsprintf.c中的pointer函数中，说明了printk中的%pS的意思：
+
+	case 'S':
+
+	return symbol_string(buf, end, ptr, spec, *fmt);
+
+	即'S'表示打印符号名，而这个符号名是kallsyms里获取的。
+
+	可以看一下kernel/kallsyms.c中的kallsyms_lookup()函数，它负责通过地址找到函数名，分为两部分：
+
+	1. 如果地址在编译内核时得到的地址范围内，就查找kallsyms_names数组来获得函数名。
+	2. 如果这个地址是某个内核模块中的函数，则在模块加载后的地址表中查找。
+	kallsyms_lookup()最终返回字符串“函数名+offset/size[mod]”，交给printk打印。
