@@ -119,21 +119,21 @@ MODULE_NAME := hello
 
 ifneq ($(KERNELRELEASE),)
 
-	obj-m := hello.o
+    obj-m := hello.o
 
 else
-	CROSS_COMPILE := /share/op7t/buildtool/aarch64-linux-android-4.9-uber-master/bin/aarch64-linux-android-
-	#CC = CROSS_COMPILE	
-	#KERNELDIR ?= /lib/modules/$(shell uname -r)/build
-	PWD	:=$(shell pwd)
-	KDIR := /share/op7t/blu7t/op7-r70/out
+    CROSS_COMPILE := /share/op7t/buildtool/aarch64-linux-android-4.9-uber-master/bin/aarch64-linux-android-
+    #CC = CROSS_COMPILE	
+    #KERNELDIR ?= /lib/modules/$(shell uname -r)/build
+    PWD	:=$(shell pwd)
+    KDIR := /share/op7t/blu7t/op7-r70/out
 
 modules:
-	make -C $(KDIR) REAL_CC=$(GITHUB_WORKSPACE)/buildtool/toolchains/llvm-Snapdragon_LLVM_for_Android_8.0/prebuilt/linux-x86_64/bin/clang CROSS_COMPILE=/share/op7t/buildtool/aarch64-linux-android-4.9-uber-master/bin/aarch64-linux-android- CLANG_TRIPLE=aarch64-linux-gnu- ARCH=arm64 M=$(PWD) modules CONFIG_MODULE_UNLOAD=y CONFIG_RETPOLINE=y
+    make -C $(KDIR) REAL_CC=$(GITHUB_WORKSPACE)/buildtool/toolchains/llvm-Snapdragon_LLVM_for_Android_8.0/prebuilt/linux-x86_64/bin/clang CROSS_COMPILE=/share/op7t/buildtool/aarch64-linux-android-4.9-uber-master/bin/aarch64-linux-android- CLANG_TRIPLE=aarch64-linux-gnu- ARCH=arm64 M=$(PWD) modules CONFIG_MODULE_UNLOAD=y CONFIG_RETPOLINE=y
 
 clean:
-	rm -rf *.o *.order *.symvers *.ko *.mod* .*.cmd .*.*.cmd .*.*.*.cmd
-	@rm -fr .tmp_versions Module.symvers modules.order
+    rm -rf *.o *.order *.symvers *.ko *.mod* .*.cmd .*.*.cmd .*.*.*.cmd
+    @rm -fr .tmp_versions Module.symvers modules.order
 endif
 ```
 b. 注意:
@@ -262,11 +262,11 @@ http://books.gigatux.nl/mirror/kerneldevelopment/0672327201/ch14lev1sec2.html
 
 rwxps对应的
 
-	r = read
-	w = write
-	x = execute
-	s = shared
-	p = private (copy on write)
+    r = read
+    w = write
+    x = execute
+    s = shared
+    p = private (copy on write)
 
 ```shell
 # http://adbcommand.com/articles/%E5%B8%B8%E7%94%A8adb%20shell%E5%91%BD%E4%BB%A4%EF%BC%9Arun-as%E5%92%8Cexec-out
@@ -277,20 +277,20 @@ cache code_cache files shared_prefs
 
 ## printk关于格式化说明
 
-	需要说明的一个地方是，通过函数的地址来打印函数名是通过格式控制符%pS来打印的：
+    需要说明的一个地方是，通过函数的地址来打印函数名是通过格式控制符%pS来打印的：
 
-	printk("[<%p>] %pS\n", (void *) ip,(void *) ip);
+    printk("[<%p>] %pS\n", (void *) ip,(void *) ip);
 
-	在内核代码树的lib/vsprintf.c中的pointer函数中，说明了printk中的%pS的意思：
+    在内核代码树的lib/vsprintf.c中的pointer函数中，说明了printk中的%pS的意思：
 
-	case 'S':
+    case 'S':
 
-	return symbol_string(buf, end, ptr, spec, *fmt);
+    return symbol_string(buf, end, ptr, spec, *fmt);
 
-	即'S'表示打印符号名，而这个符号名是kallsyms里获取的。
+    即'S'表示打印符号名，而这个符号名是kallsyms里获取的。
 
-	可以看一下kernel/kallsyms.c中的kallsyms_lookup()函数，它负责通过地址找到函数名，分为两部分：
+    可以看一下kernel/kallsyms.c中的kallsyms_lookup()函数，它负责通过地址找到函数名，分为两部分：
 
-	1. 如果地址在编译内核时得到的地址范围内，就查找kallsyms_names数组来获得函数名。
-	2. 如果这个地址是某个内核模块中的函数，则在模块加载后的地址表中查找。
-	kallsyms_lookup()最终返回字符串“函数名+offset/size[mod]”，交给printk打印。
+    1. 如果地址在编译内核时得到的地址范围内，就查找kallsyms_names数组来获得函数名。
+    2. 如果这个地址是某个内核模块中的函数，则在模块加载后的地址表中查找。
+    kallsyms_lookup()最终返回字符串“函数名+offset/size[mod]”，交给printk打印。
