@@ -27,27 +27,27 @@
 
 1. 7857803000-785784b000 
 
-本段内存映射的虚拟地址空间范围, 对应vm_area_struct中的vm_start和vm_end
+	本段内存映射的虚拟地址空间范围, 对应vm_area_struct中的vm_start和vm_end
 
 2. rw-p----权限 
 
-r-读，w-写 x-可执行 p-私有，对应vm_flags。
+	r-读，w-写 x-可执行 p-私有，对应vm_flags。
 
 3. 00000000
 
-针对有名映射，指本段映射地址在文件中的偏移，对应vm_pgoff。对匿名映射而言，为vm_area_struct->vm_start
+	针对有名映射，指本段映射地址在文件中的偏移，对应vm_pgoff。对匿名映射而言，为vm_area_struct->vm_start
 
 4. fd：00
 
-所映射的文件所属设备的设备号，对应vm_file->f_dentry->d_inode->i_sb->s_dev。匿名映射为0。其中fd为主设备号，00为次设备号
+	所映射的文件所属设备的设备号，对应vm_file->f_dentry->d_inode->i_sb->s_dev。匿名映射为0。其中fd为主设备号，00为次设备号
 
 5. 00048000
 
-文件的索引节点号，对应vm_file->f_dentry->d_inode->i_ino，与ls –i显示的内容相符。匿名映射为0。
+	文件的索引节点号，对应vm_file->f_dentry->d_inode->i_ino，与ls –i显示的内容相符。匿名映射为0。
 
 6. /data/local/tmp/xxxx.so
 
-所映射的文件名。对有名映射而言，是映射的文件名，对匿名映射来说，是此段内存在进程中的作用。[stack]表示本段内存作为栈来使用，[heap]作为堆来使用，其他情况则为无。
+	所映射的文件名。对有名映射而言，是映射的文件名，对匿名映射来说，是此段内存在进程中的作用。[stack]表示本段内存作为栈来使用，[heap]作为堆来使用，其他情况则为无。
 
 ## cat /proc/self/map底层实现
 
