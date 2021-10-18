@@ -349,6 +349,25 @@ static void show_vma_header_prefix(struct seq_file *m,
 		   MAJOR(dev), MINOR(dev), ino);
 }
 
+//https://blog.csdn.net/lijzheng/article/details/23618365
+//https://www.cnblogs.com/arnoldlu/p/10272466.html
+static void show_vma_header_prefix2(struct seq_file *m,
+				   unsigned long start, unsigned long end,
+				   vm_flags_t flags, unsigned long long pgoff,
+				   dev_t dev, unsigned long ino)
+{
+	seq_setwidth(m, 25 + sizeof(void *) * 6 - 1);
+	seq_printf(m, "%08lx-%08lx %c%c%c%c %08llx %02x:%02x %lu ",
+		   start,
+		   end,
+		   flags & VM_READ ? 'r' : '-',
+		   flags & VM_WRITE ? 'w' : '-',
+		   '-',//flags & VM_EXEC ? 'x' : '-',
+		   flags & VM_MAYSHARE ? 's' : 'p',
+		   0,//pgoff,
+		   0, 0, 0);//MAJOR(dev), MINOR(dev), ino);
+}
+
 static void
 show_map_vma(struct seq_file *m, struct vm_area_struct *vma, int is_pid)
 {
@@ -360,6 +379,17 @@ show_map_vma(struct seq_file *m, struct vm_area_struct *vma, int is_pid)
 	unsigned long start, end;
 	dev_t dev = 0;
 	const char *name = NULL;
+	char path_buf[PATH_MAX] = {0};
+	
+	if (file) {
+		char *path = d_path(&file->f_path, path_buf, sizeof(path_buf));
+		if(strlen(path) > 0) {
+			if(strstr(path, "riru")) {
+				printk("[i]%s\n", path);				
+				return;
+			}
+		}
+	}
 
 	if (file) {
 		struct inode *inode = file_inode(vma->vm_file);
