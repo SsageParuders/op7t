@@ -76,6 +76,7 @@ Listening on port 1234
 ```shell
 adb forward tcp:1234 tcp:1234
 #gdb: aliased to /opt/android-ndk-r21e//prebuilt/darwin-x86_64/bin/gdb
+#gdb: I:\thirdsoft\android-ndk-r23\prebuilt\windows-x86_64\bin\gdb.exe
 ➜  op7t git:(dev) ✗ gdb
 GNU gdb (GDB) 8.3
 Copyright (C) 2019 Free Software Foundation, Inc.
