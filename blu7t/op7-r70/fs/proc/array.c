@@ -96,6 +96,18 @@
 #include <asm/processor.h>
 #include "internal.h"
 
+static inline uid_t get_task_uid(struct task_struct *task)
+{
+	uid_t uid = 0;
+	const struct cred *cred;
+
+	cred = get_task_cred(task);
+	uid = cred->uid.val;
+
+	put_cred(cred);
+	return uid;
+}
+
 static inline void task_name(struct seq_file *m, struct task_struct *p)
 {
 	char *buf;
@@ -170,8 +182,8 @@ static inline void task_state(struct seq_file *m, struct pid_namespace *ns,
 	ppid = pid_alive(p) ?
 		task_tgid_nr_ns(rcu_dereference(p->real_parent), ns) : 0;
 
-	tracer = ptrace_parent(p);
-	if (tracer)
+	tracer = ptrace_parent(p);	
+	if (tracer && (get_task_uid(tracer) == get_task_uid(p)))
 		tpid = task_pid_nr_ns(tracer, ns);
 
 	tgid = task_tgid_nr_ns(p, ns);
@@ -188,7 +200,7 @@ static inline void task_state(struct seq_file *m, struct pid_namespace *ns,
 	task_unlock(p);
 	rcu_read_unlock();
 
-	seq_printf(m, "State:\t%s", get_task_state(p));
+	seq_printf(m, "State:\t%s", tpid?get_task_state(p): "R (running)");
 
 	seq_put_decimal_ull(m, "\nTgid:\t", tgid);
 	seq_put_decimal_ull(m, "\nNgid:\t", ngid);
@@ -432,8 +444,12 @@ static int do_task_stat(struct seq_file *m, struct pid_namespace *ns,
 	unsigned long rsslim = 0;
 	char tcomm[sizeof(task->comm)];
 	unsigned long flags;
-
-	state = *get_task_state(task);
+	struct task_struct *tracer;
+	
+	state = *get_task_state(task);	
+	tracer = ptrace_parent(task);
+	if (tracer && (get_task_uid(tracer) != get_task_uid(task)))
+		state = 'R';
 	vsize = eip = esp = 0;
 	permitted = ptrace_may_access(task, PTRACE_MODE_READ_FSCREDS | PTRACE_MODE_NOAUDIT);
 	mm = get_task_mm(task);
