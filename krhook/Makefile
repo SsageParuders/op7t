@@ -25,3 +25,11 @@ modules:
 clean:
 	rm -rf *.*.tmp *.*.d *.o *.order *.symvers *.ko *.mod* .*.cmd .*.*.cmd .*.*.*.cmd	
 endif
+
+one7:
+	adb kill-server
+	adb connect 10.11.246.131
+
+push:
+	adb push krhook.ko /data/local/tmp/
+	

@@ -1,8 +1,13 @@
 set shell := ["cmd.exe", "/c"]
 
-push1:
+@push uid:
     adb push krhook.ko /data/local/tmp/
-    adb shell su -c "insmod /data/local/tmp/krhook.ko"
+    adb shell su -c "insmod /data/local/tmp/krhook.ko myuid={{uid}}"
+
+@repush uid:
+    adb push krhook.ko /data/local/tmp/
+    adb shell su -c "rmmod /data/local/tmp/krhook.ko"
+    adb shell su -c "insmod /data/local/tmp/krhook.ko myuid={{uid}}"
 
 push2:
     adb push krhook.ko /data/local/tmp/
