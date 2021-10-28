@@ -26,8 +26,10 @@
  * NOTE: Make sure to have dwc as local variable in function before using
  * below macros.
  */
-#define dbg_event(ep_num, name, status) \
-	dwc3_dbg_print(dwc, ep_num, name, status, "")
+// #define dbg_event(ep_num, name, status) \
+//     dwc3_dbg_print(dwc, ep_num, name, status, "")
+
+#define dbg_event(ep_num, name, status) 
 
 #define dbg_print(ep_num, name, status, extra) \
 	dwc3_dbg_print(dwc, ep_num, name, status, extra)
