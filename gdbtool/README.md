@@ -76,6 +76,7 @@ Listening on port 1234
 ```shell
 adb forward tcp:1234 tcp:1234
 #gdb: aliased to /opt/android-ndk-r21e//prebuilt/darwin-x86_64/bin/gdb
+#gdb: I:\thirdsoft\android-ndk-r23\prebuilt\windows-x86_64\bin\gdb.exe
 ➜  op7t git:(dev) ✗ gdb
 GNU gdb (GDB) 8.3
 Copyright (C) 2019 Free Software Foundation, Inc.
@@ -278,7 +279,12 @@ lldb目前已经成为主流，建议使用对应的参考文档有
 
 [https://lldb.llvm.org/use/tutorial.html](https://lldb.llvm.org/use/tutorial.html)
 
-ndk/21.3.6528147/toolchains/llvm/prebuilt/darwin-x86_64/lib64/clang/9.0.8/lib/linux/aarch64/lldb-server
+```shell
+mac: ndk/21.3.6528147/toolchains/llvm/prebuilt/darwin-x86_64/lib64/clang/9.0.8/lib/linux/aarch64/lldb-server
+win: I:\thirdsoft\android-ndk-r23\toolchains\llvm\prebuilt\windows-x86_64\bin\lldb.exe
+oneplus: OnePlus7T:/data/local/tmp # ./lldb-server p --server --listen 0.0.0.0:1234
+```
+
 NDK中有4个lldb-server, 由于我的设备是64位的, 所以选择aarch64目录下的
 
 注意：我就是因为上面的选择不正确一直没成功, 为了不用每次都输入相关命令可以使用.lldbinit

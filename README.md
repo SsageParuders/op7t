@@ -294,3 +294,10 @@ cache code_cache files shared_prefs
     1. 如果地址在编译内核时得到的地址范围内，就查找kallsyms_names数组来获得函数名。
     2. 如果这个地址是某个内核模块中的函数，则在模块加载后的地址表中查找。
     kallsyms_lookup()最终返回字符串“函数名+offset/size[mod]”，交给printk打印。
+
+## 防护系统
+
+    https://github.com/darvincisec/AntiDebugandMemoryDump
+    1. 实现了自己的syscall
+    2. 实现了常用的libc函数
+    3. 一些常规的检查手段
