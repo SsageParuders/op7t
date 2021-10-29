@@ -5,17 +5,11 @@
 ## 使用说明
 
 ```shell
-insmod krhook.so
-
-# 输入需要过滤的pid, -1 代表不过滤
-echo 860 > /dev/mypid
-
-# 验证是否成功
-cat /dev/mypid
+insmod krhook.so myuid=10221
 
 # dmesg 可以查看对应log
 
-OnePlus7T:/data/local/tmp # dmesg | tail
+OnePlus7T:/data/local/tmp # dmesg -w | grep kr_
 [85016.474909] [20210916_17:10:02.294775]@0 myLog::openat64 pathname:[/sys/class/power_supply/battery/health] current->pid:[860]
 [85016.475085] [20210916_17:10:02.294953]@0 myLog::openat64 pathname:[/sys/class/power_supply/battery/technology] current->pid:[860]
 [85016.475219] [20210916_17:10:02.295087]@0 myLog::openat64 pathname:[/sys/class/power_supply/dc/online] current->pid:[860]
