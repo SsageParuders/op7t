@@ -2,30 +2,25 @@
 
 系统调用hook
 
+## 开发记录
+2021年10月29日 09:52:25 hook了外挂常用的系统调用
+
 ## 使用说明
 
 ```shell
-insmod krhook.so
-
-# 输入需要过滤的pid, -1 代表不过滤
-echo 860 > /dev/mypid
-
-# 验证是否成功
-cat /dev/mypid
+insmod krhook.so myuid=10221
 
 # dmesg 可以查看对应log
 
-OnePlus7T:/data/local/tmp # dmesg | tail
-[85016.474909] [20210916_17:10:02.294775]@0 myLog::openat64 pathname:[/sys/class/power_supply/battery/health] current->pid:[860]
-[85016.475085] [20210916_17:10:02.294953]@0 myLog::openat64 pathname:[/sys/class/power_supply/battery/technology] current->pid:[860]
-[85016.475219] [20210916_17:10:02.295087]@0 myLog::openat64 pathname:[/sys/class/power_supply/dc/online] current->pid:[860]
-[85016.475382] [20210916_17:10:02.295250]@0 myLog::openat64 pathname:[/sys/class/power_supply/pc_port/online] current->pid:[860]
-[85016.475522] [20210916_17:10:02.295390]@0 myLog::openat64 pathname:[/sys/class/power_supply/pc_port/type] current->pid:[860]
-[85016.475708] [20210916_17:10:02.295576]@0 myLog::openat64 pathname:[/sys/class/power_supply/pc_port/current_max] current->pid:[860]
-[85016.475902] [20210916_17:10:02.295770]@0 myLog::openat64 pathname:[/sys/class/power_supply/pc_port/voltage_max] current->pid:[860]
-[85016.476016] [20210916_17:10:02.295884]@0 myLog::openat64 pathname:[/sys/class/power_supply/usb/online] current->pid:[860]
-[85016.476265] [20210916_17:10:02.296133]@0 healthd: battery l=100 v=4396 t=27.9 h=2 st=5 c=4 fc=2332000 cc=448 chg=u
-[85019.361663] [20210916_17:10:05.181529]@2 [cds_ol_rx_threa][0x17c16b38d20][17:10:05.181512] wlan: [4112:I:DATA] hdd_rx_packet_cbk: ARP packet received
+OnePlus7T:/data/local/tmp # dmesg -w | grep kr_
+[36676.309022] [20211029_09:50:59.555441]@7 [info]kr_faccessat /vendor/lib64/hw/gralloc.msmnile.so uid=10226 stack:0x7c7ed82088|0x7bdf26a1a4|0x7aa1eeb96c|0x7aa1ea624c|0x7c7deedafc|0x7c7dee5c44|0x7b8f1aead8|0xffffffffffffffff|
+[36676.310265] [20211029_09:50:59.556684]@7 [info]kr_faccessat /vendor/lib64/hw/gralloc.msmnile.so uid=10226 stack:0x7c7ed82088|0x7bdf26a1a4|0x7aa1eeb96c|0x7aa1ea4128|0x7c7deedba0|0x7c7dee5c44|0x7b8f1aead8|0xffffffffffffffff|
+[36676.311047] [20211029_09:50:59.557466]@7 [info]kr_faccessat /vendor/lib64/hw/gralloc.msmnile.so uid=10226 stack:0x7c7ed82088|0x7bdf26a1a4|0x7aa1eeb96c|0x7aa1ea624c|0x7c7deedafc|0x7c7dee5c44|0x7b8f1aead8|0xffffffffffffffff|
+[36676.311526] [20211029_09:50:59.557945]@7 [info]kr_faccessat /vendor/lib64/hw/gralloc.msmnile.so uid=10226 stack:0x7c7ed82088|0x7bdf26a1a4|0x7aa1eeb96c|0x7aa1ea4128|0x7c7deedba0|0x7c7dee5c44|0x7b8f1aead8|0xffffffffffffffff|
+[36678.603886] [20211029_09:51:01.850302]@5 [info]kr_faccessat /storage/emulated/0/Android/obb/com.DefaultCompany.krhook_unity3d uid=10226 stack:0x7c7ed82088|0x71ac88f4|0x7bf8d1d67d|0xb176fd7e141a1536|0xffffffffffffffff|
+[36678.649791] [20211029_09:51:01.896209]@6 [info]kr_faccessat /data/user/0/com.DefaultCompany.krhook_unity3d/shared_prefs/com.DefaultCompany.krhook_unity3d.v2.playerprefs.xml uid=10226 stack:0x7c7ed82088|0x71ac88f4|0x7bf8d1d67d|0xb176fd7e141a1536|0xffffffffffffffff|
+[36678.649901] [20211029_09:51:01.896320]@6 [info]kr_faccessat /data/user/0/com.DefaultCompany.krhook_unity3d/shared_prefs/com.DefaultCompany.krhook_unity3d.v2.playerprefs.xml uid=10226 stack:0x7c7ed82088|0x71ac88f4|0x7bf8d1d67d|0xb176fd7e141a1536|0xffffffffffffffff|
+[36678.649921] [20211029_09:51:01.896340]@6 [info]kr_faccessat /data/user/0/com.DefaultCompany.krhook_unity3d/shared_prefs/com.DefaultCompany.krhook_unity3d.v2.playerprefs.xml.bak uid=10226 stack:0x7c7ed82088|0x71ac88f4|0x7bf8d1d67d|0xb176fd7e141a1536|0xffffffffffffffff|
 ```
 
 ## 详细使用说明
