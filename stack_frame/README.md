@@ -4,6 +4,8 @@
 
 早前在内核中实现了堆栈回溯的功能,方便进行外挂分析和逆向, 目前来看绝大多数时间是没有问题的. 但是有的时候某些函数回溯会失败, 其核心原因是fp 是null.
 
+![635197806fd118a69039c531fba7a68](https://cdn.jsdelivr.net/gh/yhnu/PicBed/635197806fd118a69039c531fba7a68.png)
+
 ## 堆栈回溯的原理是通过fp进行回溯的
 
 ![20211029172735](https://cdn.jsdelivr.net/gh/yhnu/PicBed/20211029172735.png)
