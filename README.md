@@ -301,3 +301,6 @@ cache code_cache files shared_prefs
     1. 实现了自己的syscall
     2. 实现了常用的libc函数
     3. 一些常规的检查手段
+## 平时一些分析相关的笔记
+    
+   [https://github.com/yhnu/note](https://github.com/yhnu/note)
