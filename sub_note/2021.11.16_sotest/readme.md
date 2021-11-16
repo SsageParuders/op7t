@@ -181,6 +181,7 @@ mmap需要按页分配, elf需要对齐
 
 ![linker](https://cdn.jsdelivr.net/gh/yhnu/PicBed/20211116171228.png)
 
+因为mmap时使用但是PAGE_START(phdr->p_offset), elf的fileoffset是0x34D18, 向上页对齐便是0x34000. 心里的疑惑也就解开了.
 
 .bss 也叫做全局变量段
 
