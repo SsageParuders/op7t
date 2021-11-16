@@ -155,7 +155,7 @@ kr_openat vaddr=0x7abcdcc000
 
 这里简单画了下对应信息, 方便能够理解背后的行为.
 
-![20211116173508](https://cdn.jsdelivr.net/gh/yhnu/PicBed/20211116173508.png)
+![20211116191000](https://cdn.jsdelivr.net/gh/yhnu/PicBed/20211116191000.png)
 
 通过上面的分析的,便解答了心中的疑惑. 那么我们进一步思考linker为什么需要进行上面的行为呢? 这个问题我们就需要去linker源码里面寻找答案了, 
 
