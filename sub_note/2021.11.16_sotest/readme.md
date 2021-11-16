@@ -8,15 +8,15 @@
 
 1. 通过ida观察elf具有两个PT_LOAD段
 
-![20211116095810](https://cdn.jsdelivr.net/gh/yhnu/PicBed/20211116095810.png)
+![linker](https://cdn.jsdelivr.net/gh/yhnu/PicBed/20211116095810.png)
 
 2. 通过maps文件观察, 具有3个映射段
 
-![20211116095257](https://cdn.jsdelivr.net/gh/yhnu/PicBed/20211116095257.png)
+![linker](https://cdn.jsdelivr.net/gh/yhnu/PicBed/20211116095257.png)
 
 3. 通过源码观察, 确实只加载2个段
 
-![20211115132401](https://cdn.jsdelivr.net/gh/yhnu/PicBed/20211115132401.png)
+![linker](https://cdn.jsdelivr.net/gh/yhnu/PicBed/20211115132401.png)
 
 
 ### 内核层mmap观察分配情况
@@ -153,7 +153,7 @@ kr_openat vaddr=0x7abcdcc000
 
 这里简单画了下对应信息, 方便能够理解背后的行为.
 
-![20211116094713](https://cdn.jsdelivr.net/gh/yhnu/PicBed/20211116094713.png)
+![linker](https://cdn.jsdelivr.net/gh/yhnu/PicBed/20211116094713.png)
 
 通过上面的分析的,便解答了心中的疑惑. 那么我们进一步思考linker为什么需要进行上面的行为呢? 这个问题我们就需要去linker源码里面寻找答案了, 
 
@@ -177,7 +177,7 @@ mmap需要按页分配, elf需要对齐
 
 下图详细描述了虚拟地址空间映射和so文件之间的关系
 
-![20211116115155](https://cdn.jsdelivr.net/gh/yhnu/PicBed/20211116115155.png)
+![linker](https://cdn.jsdelivr.net/gh/yhnu/PicBed/20211116171228.png)
 
 
 
