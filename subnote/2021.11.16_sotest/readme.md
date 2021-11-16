@@ -149,19 +149,34 @@ kr_openat vaddr=0x7abcdcc000
 
 第二次采集的时候通过hook补全了mprotect权限, 发现为了一行关键信息. linker使用mprotect进行了权限修改, 因此内核层便进行了maps分割
 
+这里简单画了下对应信息, 方便能够理解背后的行为.
+
+![20211116094713](https://cdn.jsdelivr.net/gh/yhnu/PicBed/20211116094713.png)
+
 通过上面的分析的,便解答了心中的疑惑. 那么我们进一步思考linker为什么需要进行上面的行为呢? 这个问题我们就需要去linker源码里面寻找答案了, 
 
 堆栈信息已经给我们提供了阅读代码的线索, 我们也就可以去大海里遨游不怕迷路了.
 
+### linker LoadSegments详细分析
 
-### linker详细分析
+ElfReader::ReadProgramHeaders 进行mmap, 在析构函数进行 munmap
+
+ElfReader::ReadSectionHeaders 后续再分析
+
+ElfReader::ReadDynamicSection 后续再分析
+
+ElfReader::ReadDynamicSection 后续再分析
+
+ElfReader::LoadSegments 这里进行一下详细阐述, linker其实是操作系统和elf的连接器, 既要满足elf的要求, 又要满足mmap的一些限制. 
+
+比如:
+
+mmap需要按页分配, elf需要对齐
+
+下图详细描述了虚拟地址空间映射和so文件之间的关系
 
 ![20211116115155](https://cdn.jsdelivr.net/gh/yhnu/PicBed/20211116115155.png)
 
-![20211116094713](https://cdn.jsdelivr.net/gh/yhnu/PicBed/20211116094713.png)
 
-## 第一次mmap分配
+
  
-ElfReader::ReadProgramHeaders 进行mmap, 在析构函数进行 munmap
-
-还没写完.......
