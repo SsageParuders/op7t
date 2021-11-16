@@ -182,5 +182,7 @@ mmap需要按页分配, elf需要对齐
 ![20211116115155](https://cdn.jsdelivr.net/gh/yhnu/PicBed/20211116115155.png)
 
 
+### 其他比较好的讲解
 
+[liner底层原理](https://wooyun.js.org/drops/Android%20Linker%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html)
  
