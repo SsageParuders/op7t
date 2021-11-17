@@ -189,9 +189,43 @@ mmap需要按页分配, elf需要对齐
 
 ![20211117100643](https://cdn.jsdelivr.net/gh/yhnu/PicBed/20211117100643.png)
 
-### 待解答疑问
+### mprotect由谁调用的?
 
-1. mprotect由谁调用的,目的是什么?
+```shell
+[13208.302913] [20211117_15:08:06.310817]@5 [info]kr_mmap mmap file libsotest.so. vaddr=0x7e57126000, len=0x1d0 prot=1, off=0x0
+[13208.302926] [20211117_15:08:06.310830]@5 [info]kr_mmap mmap file libsotest.so. vaddr=0x7e57125000, len=0xae0 prot=1, off=0x35000
+[13208.302949] [20211117_15:08:06.310852]@5 [info]kr_mmap mmap file libsotest.so. vaddr=0x7e57123000, len=0x1ca0 prot=1, off=0x34000
+[13208.302959] [20211117_15:08:06.310863]@5 [info]kr_mmap mmap file libsotest.so. vaddr=0x7e57122000, len=0xaeb prot=1, off=0x0
+[13208.303170] [20211117_15:08:06.311073]@5 [info]kr_mmap mmap file libsotest.so. vaddr=0x7dc2382000, len=0x34988 prot=5, off=0x0
+[13208.303185] [20211117_15:08:06.311088]@5 [info]kr_mmap mmap file libsotest.so. vaddr=0x7dc23c6000, len=0x11f8 prot=3, off=0x34000
+[13208.303481] [20211117_15:08:06.311385]@5 [info]kr_mprotect start=0x7dc23c6000 len=0x1000 prot=1 tgid=13596(由谁触发?)
+[13208.303536] [20211117_15:08:06.311440]@5 [info]kr_mprotect start=0x7e57121000 len=0x1000 prot=1 tgid=13596
+```
+
+```shell
+kr_gid tgid=13596 path=/proc/13596/maps mtim=1637132869
+kr_tag start=0x7dc23c6000
+	pc=0x7e58578e78 sp=0x7ffd9dd960 c->sp=0x7ffd9dd960 c->pc=0x7e58578e78 regs_len=320 stack_len=9888 tag_len=1024
+	#00 0x7e58578e78 /apex/com.android.runtime/bin/linker64+fce78(__dl_mprotect)
+	#01 0x7e584cd160 /apex/com.android.runtime/bin/linker64+51160(__dlphdr_table_protect_gnu_relro(elf64_phdr const*, unsigned long, unsigned long long))
+	#02 0x7e584bc7f8 /apex/com.android.runtime/bin/linker64+407f8(__dlsoinfo::protect_relro())
+	#03 0x7e584baff0 /apex/com.android.runtime/bin/linker64+3eff0(__dlsoinfo::link_image(LinkedList<soinfo, SoinfoListAllocator> const&, LinkedList<soinfo, SoinfoListAllocator> const&, android_dlextinfo const*, unsigned long*))
+	#04 0x7e584b6324 /apex/com.android.runtime/bin/linker64+3a324(__dlfind_libraries(android_namespace_t*, soinfo*, char const* const*, unsigned long, soinfo**, std::__1::vector<soinfo*, std::__1::allocator<soinfo*> >*, unsigned long, int, android_dlextinfo const*, bool, bool, std::__1::vector<android_namespace_t*, std::__1::allocator<android_namespace_t*> >*))
+	#05 0x7e584b8ba0 /apex/com.android.runtime/bin/linker64+3cba0(__dldo_dlopen(char const*, int, android_dlextinfo const*, void const*))
+	#06 0x7e584b40dc /apex/com.android.runtime/bin/linker64+380dc(__dl___loader_android_dlopen_ext)
+	#07 0x7e550790b8 /apex/com.android.runtime/lib64/bionic/libdl.so+10b8
+	#08 0x7e55024fd8 /apex/com.android.runtime/lib64/libnativeloader.so+7fd8
+	#09 0x7e55024c5c /apex/com.android.runtime/lib64/libnativeloader.so+7c5c
+	#10 0x7dd0e10938 /apex/com.android.runtime/lib64/libart.so+37b938
+	#11 0x7dc6ea60e0 /apex/com.android.runtime/lib64/libopenjdkjvm.so+50e0
+	#12 0x71e9eaf4 /system/framework/arm64/boot.oat+b9af4
+	#13 0x71ebbcac /system/framework/arm64/boot.oat+d6cac
+	#14 0x71ebcc94 /system/framework/arm64/boot.oat+d7c94
+	#15 0x71ec1870 /system/framework/arm64/boot.oat+dc870
+```
+
+![linker](https://cdn.jsdelivr.net/gh/yhnu/PicBed/20211117151714.png)
+
 
 ### 其他比较好的讲解
 
