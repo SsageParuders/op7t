@@ -179,7 +179,7 @@ mmap需要按页分配, elf需要对齐
 
 下图详细描述了虚拟地址空间映射和so文件之间的关系
 
-![linker](https://cdn.jsdelivr.net/gh/yhnu/PicBed/20211116171228.png)
+![linker](https://cdn.jsdelivr.net/gh/yhnu/PicBed/20211122090406.png)
 
 因为mmap时使用但是PAGE_START(phdr->p_offset), elf的fileoffset是0x34D18, 向上页对齐便是0x34000. 心里的疑惑也就解开了.
 
