@@ -189,6 +189,10 @@ mmap需要按页分配, elf需要对齐
 
 ![20211117100643](https://cdn.jsdelivr.net/gh/yhnu/PicBed/20211117100643.png)
 
+自己也做了对应的实验,  开辟一个非常大的全局变量. 其中memsize和
+
+![20211122104726](https://cdn.jsdelivr.net/gh/yhnu/PicBed/20211122104726.png)
+
 ### mprotect由谁调用的?
 
 ```shell
@@ -225,6 +229,12 @@ kr_tag start=0x7dc23c6000
 ```
 
 ![linker](https://cdn.jsdelivr.net/gh/yhnu/PicBed/20211117151714.png)
+
+### 为什么需要使用mprotect?
+
+![20211122112623](https://cdn.jsdelivr.net/gh/yhnu/PicBed/20211122112623.png)
+
+因为elf里面有个对应Read-only After Relocation段(R__) GNU Read-only After Relocation, 因此linker需要在进行relocation后进行只读权限设置, 因此使用mprotect
 
 
 ### 其他比较好的讲解
