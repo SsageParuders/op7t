@@ -1,0 +1,4 @@
+[submodule "note"]
+	path = note
+	url = git@github.com:yhnu/note.git
+	branch = master
