@@ -94,7 +94,9 @@ a. 修改内核源码绕过反调试检测
 
 参考文章:
 
-[安卓10源码学习开发定制(6)修改内核源码绕过反调试检测](https://mp.weixin.qq.com/s?__biz=Mzg5MzU3NzkxOQ==&mid=2247483992&idx=4&sn=1137e15288c238668fb39462e295d82c&chksm=c02dfd88f75a749e38c772d45d620a615d77d21b2f3c729ecd767a13a4c674204fe6120beea2&scene=178&cur_album_id=1799542483832324102#rd)
+[修改内核源码绕过反调试检测](https://mp.weixin.qq.com/s?__biz=Mzg5MzU3NzkxOQ==&mid=2247483992&idx=4&sn=1137e15288c238668fb39462e295d82c&chksm=c02dfd88f75a749e38c772d45d620a615d77d21b2f3c729ecd767a13a4c674204fe6120beea2&scene=178&cur_album_id=1799542483832324102#rd)
+
+[反调试分支](https://github.com/yhnu/op7t/anti)
 
 2021年9月10日 08:56:45
 
