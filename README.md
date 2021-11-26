@@ -16,6 +16,10 @@ c. 对应版本全量包
 OnePlus7THydrogen_14.H.09_OTA_009_all_2001030048_d935aae55ac_1007.zip //一加手机论坛下载
 ```
 
+## 如何替换内核
+
+[https://github.com/yhnu/note/tree/master/kernel/01_7t_install.md](https://github.com/yhnu/note/tree/master/kernel/01_7t_install.md)
+
 ## Linux编译环境
 
 1. 操作系统ubuntu20
